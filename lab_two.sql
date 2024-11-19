@@ -50,3 +50,8 @@ SELECT studID, studName, dep_name FROM Student JOIN department ON Student.depart
 
 -- Eleminate duplication
 SELECT DISTINCT age FROM Student;
+
+-- Patter matching
+SELECT * FROM Student WHERE studName LIKE '%lex%';
+
+SELECT * FROM Student WHERE age BETWEEN 19 AND 21;
