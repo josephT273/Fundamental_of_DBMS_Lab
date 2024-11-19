@@ -44,3 +44,6 @@ SELECT * FROM Student JOIN department On Student.department = department.dep_cod
 
 -- SELCTE STUDENTS age >= 20
 SELECT studName FROM Student WHERE age >= 20;
+
+-- Join the two table
+SELECT studID, studName, dep_name FROM Student JOIN department ON Student.department = department.dep_code WHERE age >= 20;
