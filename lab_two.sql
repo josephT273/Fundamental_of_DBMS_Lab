@@ -47,3 +47,6 @@ SELECT studName FROM Student WHERE age >= 20;
 
 -- Join the two table
 SELECT studID, studName, dep_name FROM Student JOIN department ON Student.department = department.dep_code WHERE age >= 20;
+
+-- Eleminate duplication
+SELECT DISTINCT age FROM Student;
