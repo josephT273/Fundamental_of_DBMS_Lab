@@ -27,4 +27,14 @@ INSERT INTO Student
          (012, 'Joe Doe', 21, 2),
          (013, 'Jane Doe', 19, 3)
 
+-- SELECT STUDENT DATA
+SELECT * FROM Student;
+
+-- SELECT DEPARTMENT DATA
+SELECT * FROM department;
+
+-- ADD column
+ALTER TABLE department ADD location varchar(20) null;
+
+-- SELECT STUDENT DATA WITH DEPATMENT INFORMATION
 SELECT * FROM Student JOIN department On Student.department = department.dep_code;

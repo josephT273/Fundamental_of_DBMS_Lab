@@ -23,4 +23,13 @@ INSERT INTO Student Values ('ABC/0001/16', 'Abenezer Abebe', 21, 'Electrical Eng
 SELECT * FROM Student;
 
 
-SELECT stud_name FROM Student WHERE stud_id = 'ABC/0002/16'
+-- SELECT data and order it
+SELECT * FROM Student ORDER BY age ASC;
+
+SELECT stud_name FROM Student WHERE stud_id = 'ABC/0002/16';
+
+-- DROP Table 
+DROP TABLE Student;
+
+-- Remove all data from database
+TRUNCATE TABLE Student;
