@@ -25,7 +25,10 @@ INSERT INTO department VALUES ('Software Engineering', 1),
 INSERT INTO Student
     VALUES (011, 'John Doe', 20, 1),
          (012, 'Joe Doe', 21, 2),
-         (013, 'Jane Doe', 19, 3)
+         (013, 'Jane Doe', 19, 3),
+         (014, 'Alex Joe', 20, 1),
+         (015, 'Doe Jane', 22, 2),
+         (016, 'Jane Alexi', 13, 3)
 
 -- SELECT STUDENT DATA
 SELECT * FROM Student;
@@ -38,3 +41,6 @@ ALTER TABLE department ADD location varchar(20) null;
 
 -- SELECT STUDENT DATA WITH DEPATMENT INFORMATION
 SELECT * FROM Student JOIN department On Student.department = department.dep_code;
+
+-- SELCTE STUDENTS age >= 20
+SELECT studName FROM Student WHERE age >= 20;
