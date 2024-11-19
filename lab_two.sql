@@ -1,12 +1,15 @@
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'UniversityLab')
 CREATE DATABASE UniversityLab;
 
 USE UniversityLab;
 
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'department' AND xtype = 'U')
 CREATE TABLE department(
     dep_name varchar(30) not null,
     dep_code int PRIMARY KEY,
 );
 
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Student' AND xtype = 'U')
 CREATE TABLE Student (
     studID int PRIMARY KEY,
     studName varchar(20),

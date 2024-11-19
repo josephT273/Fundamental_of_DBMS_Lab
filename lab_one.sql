@@ -1,7 +1,9 @@
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'University')
 CREATE DATABASE University;
 
 USE University;
 
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Student' AND xtype = 'U')
 CREATE TABLE Student(
 	stud_id varchar(20) primary key,
 	stud_name varchar(30) not null,
