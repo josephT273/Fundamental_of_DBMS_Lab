@@ -1,0 +1,189 @@
+CREATE DATABASE school;
+
+use school;
+
+CREATE TABLE Student (
+	StudID int not null primary key,
+	Fname varchar(20) not null,
+	Lname varchar(20) not null,
+	Sex varchar(20) not null,
+	Pocket_Money varchar(20) not null,
+	DNum int 
+);
+
+
+CREATE TABLE Departiment(
+	DNo int primary key not null,
+	Dname varchar(30) not null,
+);
+
+CREATE TABLE Student_Grade (
+	StudId int not null primary key,
+	CourseCOde varchar(30) not null,
+	Grade varchar(10) not null,
+);
+
+CREATE TABLE Course (
+	CourseCode int primary key not null,
+	CTitle varchar(30) not null,
+	CrHr varchar(10) not null
+);
+
+DELETE FROM Student_Grade;
+DELETE FROM Student;
+DELETE FROM Course;
+DELETE FROM Departiment;
+
+-- 1) Drop the old single‑column PK on Student_Grade
+ALTER TABLE dbo.Student_Grade
+DROP CONSTRAINT PK__Student___F5C0A7FF27F063AB;  -- replace with your actual PK name if different
+GO
+
+-- 2) Add a composite PK on (StudId, CourseCOde)
+ALTER TABLE dbo.Student_Grade
+ADD CONSTRAINT PK_Student_Grade
+    PRIMARY KEY (StudId, CourseCOde);
+GO
+
+INSERT INTO Departiment (DNo, Dname) VALUES
+  (1, 'Computer Science'),
+  (2, 'Mathematics'),
+  (3, 'Physics');
+GO
+
+-- 3. Insert dummy students
+INSERT INTO Student (StudID, Fname, Lname, Sex, Pocket_Money, DNum) VALUES
+  (101, 'Alice',   'Smith',   'F', '1000',  1),
+  (102, 'Bob',     'Jones',   'M', '1500',  2),
+  (103, 'Charlie', 'Brown',   'M', '1200',  1),
+  (104, 'Diana',   'Prince',  'F', '2000',  3),
+  (105, 'Ethan',   'Hunt',    'M', '1100',  2);
+GO
+
+-- 4. Insert dummy courses
+INSERT INTO Course (CourseCode, CTitle, CrHr) VALUES
+  (1001, 'Data Structures',  '3'),
+  (1002, 'Algorithms',       '4'),
+  (1003, 'Calculus',         '3'),
+  (1004, 'Physics I',        '4'),
+  (1005, 'Databases',        '3');
+GO
+
+-- 5. Insert dummy grades
+INSERT INTO Student_Grade (StudId, CourseCOde, Grade) VALUES
+  (101, 1001, '3.8'),
+  (101, 1002, '3.9'),
+  (101, 1005, '3.7'),
+  (102, 1003, '3.6'),
+  (102, 1004, '3.5'),
+  (103, 1001, '3.2'),
+  (103, 1003, '3.0'),
+  (104, 1004, '3.85'),
+  (104, 1005, '3.75'),
+  (105, 1002, '2.8'),
+  (105, 1005, '3.3');
+
+
+IF OBJECT_ID('IncrementPocketMoneyForExcellentStudents', 'P') IS NOT NULL
+    DROP PROCEDURE IncrementPocketMoneyForExcellentStudents;
+GO
+
+CREATE PROCEDURE IncrementPocketMoneyForExcellentStudents
+    @StudentID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @GPA DECIMAL(3, 2);
+    DECLARE @CurrentPocketMoney DECIMAL(10, 2);
+    DECLARE @NewPocketMoney DECIMAL(10, 2);
+
+    SELECT @GPA = AVG(TRY_CAST(Grade AS DECIMAL(3, 2)))
+    FROM Student_Grade
+    WHERE StudId = @StudentID;
+
+    IF @GPA IS NOT NULL AND @GPA > 3.75
+    BEGIN
+        SELECT @CurrentPocketMoney = TRY_CAST(Pocket_Money AS DECIMAL(10, 2))
+        FROM Student
+        WHERE StudID = @StudentID;
+
+        IF @CurrentPocketMoney IS NOT NULL
+        BEGIN
+            SET @NewPocketMoney = @CurrentPocketMoney * 1.50;
+
+            UPDATE Student
+            SET Pocket_Money = CAST(@NewPocketMoney AS VARCHAR(20))
+            WHERE StudID = @StudentID;
+
+            PRINT 'Successfully updated pocket money for StudentID: ' + CAST(@StudentID AS VARCHAR) + ' (GPA: ' + CAST(@GPA AS VARCHAR) + ')';
+        END
+        ELSE
+        BEGIN
+            PRINT 'Warning: Could not convert current pocket money to numeric for StudentID: ' + CAST(@StudentID AS VARCHAR) + '. No update performed.';
+        END
+    END
+    ELSE
+    BEGIN
+        PRINT 'StudentID ' + CAST(@StudentID AS VARCHAR) + ' does not meet criteria (GPA <= 3.75 or no grades found). No update performed.';
+    END
+END;
+GO
+
+IF OBJECT_ID('DisplayGreatDistinctionGraduates', 'P') IS NOT NULL
+    DROP PROCEDURE DisplayGreatDistinctionGraduates;
+GO
+
+CREATE PROCEDURE DisplayGreatDistinctionGraduates
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    PRINT 'Students with Great Distinction (GPA >= 3.5):';
+
+    SELECT
+        s.Fname AS FirstName,
+        s.Lname AS LastName,
+        d.Dname AS DepartmentName,
+        StudentGPA.GPA
+    FROM
+        Student s
+    JOIN
+        Departiment d ON s.DNum = d.DNo
+    JOIN
+        ( SELECT
+              StudId,
+              AVG(TRY_CAST(Grade AS DECIMAL(3, 2))) AS GPA
+          FROM
+              Student_Grade
+          GROUP BY
+              StudId
+        ) AS StudentGPA ON s.StudID = StudentGPA.StudId
+    WHERE
+        StudentGPA.GPA >= 3.5
+    ORDER BY
+        StudentGPA.GPA DESC,
+        s.Lname,
+        s.Fname;
+
+END;
+GO
+
+
+-- Execute for student ID 101
+EXEC IncrementPocketMoneyForExcellentStudents @StudentID = 101;
+GO
+
+-- Execute for student ID 104
+EXEC IncrementPocketMoneyForExcellentStudents @StudentID = 104;
+GO
+
+-- Execute for a student who might not meet the criteria (for testing)
+EXEC IncrementPocketMoneyForExcellentStudents @StudentID = 102;
+GO
+
+-- Optional: Check the results after execution
+SELECT StudID, Fname, Pocket_Money FROM Student WHERE StudID IN (101, 102, 104);
+GO
+
+EXEC DisplayGreatDistinctionGraduates;
