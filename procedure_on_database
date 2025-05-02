@@ -1,0 +1,33 @@
+CREATE DATABASE HMS;
+
+use HMS;
+
+create table patient (
+	patId int not null primary key,
+	fname varchar(200) not null,
+	sex varchar(200) not null,
+	age int not null,
+	phoneNo int not null
+);
+
+create table Treatment(
+	PatId int not null primary key,
+	phyId int not null,
+	diagnosis varchar(200) not null
+);
+
+INSERT INTO patient VALUES(1, 'Almaz', 'Female', 32, 0987654321);
+INSERT INTO patient VALUES(2, 'Hagos', 'Male', 25, 0912654321);
+INSERT INTO patient VALUES(3, 'Abebe', 'Male', 25, 0712654321);
+
+
+INSERT INTO Treatment VALUES(1, 547, 'Malaria');
+INSERT INTO Treatment VALUES(2, 147, 'TB');
+INSERT INTO Treatment VALUES(3, 547, 'Malaria');
+
+CREATE PROCEDURE sp_malaria(@sex varchar(6))
+AS
+SELECT P.patId, P.fname from patient P, Treatment T where P.patId = T.PatId and T.diagnosis = 'Malaria'
+and P.sex = @sex
+
+EXECUTE sp_malaria 'Male'
